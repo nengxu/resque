@@ -252,11 +252,11 @@ module Resque
     Job.destroy(queue_from_class(klass), klass, *args)
   end
 
-  # send a job to a queue, for being processed by another external client such as Java based Jesque
+  # dispatch a job to a queue, for being processed by another external client such as Java based Jesque
   # queue: string for the queue name
   # klass: string for the class name
   # args: optional parameters
-  def send(queue, klass, *args)
+  def dispatch(queue, klass, *args)
     Plugin.before_enqueue_hooks(klass).each do |hook|
       klass.send(hook, *args)
     end
