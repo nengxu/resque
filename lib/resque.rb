@@ -214,6 +214,10 @@ module Resque
   #
   # This method is considered part of the `stable` API.
   def enqueue(klass, *args)
+    Plugin.before_enqueue_hooks(klass).each do |hook|
+      klass.send(hook, *args)
+    end
+
     Job.create(queue_from_class(klass), klass, *args)
 
     Plugin.after_enqueue_hooks(klass).each do |hook|
@@ -257,9 +261,6 @@ module Resque
   # klass: string for the class name
   # args: optional parameters
   def dispatch(queue, klass, *args)
-    Plugin.before_enqueue_hooks(klass).each do |hook|
-      klass.send(hook, *args)
-    end
     Resque.push(queue, :class => klass.to_s, :args => args)
   end
 
