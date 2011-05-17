@@ -257,6 +257,9 @@ module Resque
   # klass: string for the class name
   # args: optional parameters
   def send(queue, klass, *args)
+    Plugin.before_enqueue_hooks(klass).each do |hook|
+      klass.send(hook, *args)
+    end
     Resque.push(queue, :class => klass.to_s, :args => args)
   end
 
