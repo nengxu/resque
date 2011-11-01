@@ -66,8 +66,17 @@ An unnamed hook (`before_perform`) will be executed first.
 
 The available hooks are:
 
+* `before_enqueue`: Called with the job args before a job is placed on the queue.
+  If the hook returns `false`, the job will not be placed on the queue.
+
 * `after_enqueue`: Called with the job args after a job is placed on the queue.
   Any exception raised propagates up to the code which queued the job.
+
+* `before_dequeue`: Called with the job args before a job is removed from the queue.
+  If the hook returns `false`, the job will not be removed from the queue.
+
+* `after_dequeue`: Called with the job args after a job was removed from the queue.
+  Any exception raised propagates up to the code which dequeued the job.
 
 * `before_perform`: Called with the job args before perform. If it raises
   `Resque::Job::DontPerform`, the job is aborted. If other exceptions
@@ -83,7 +92,7 @@ The available hooks are:
   `Resque::Failure` backend.
 
 * `on_failure`: Called with the exception and job args if any exception occurs
-  while performing the job (or hooks).
+  while performing the job (or hooks), this includes Resque::DirtyExit.
 
 Hooks are easily implemented with superclasses or modules. A superclass could
 look something like this.

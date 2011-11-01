@@ -4,12 +4,22 @@ require 'resque'
 require 'resque/version'
 require 'time'
 
+if defined? Encoding
+  Encoding.default_external = Encoding::UTF_8
+end
+
 module Resque
   class Server < Sinatra::Base
     dir = File.dirname(File.expand_path(__FILE__))
 
     set :views,  "#{dir}/server/views"
-    set :public, "#{dir}/server/public"
+
+    if respond_to? :public_folder
+      set :public_folder, "#{dir}/server/public"
+    else
+      set :public, "#{dir}/server/public"
+    end
+
     set :static, true
 
     helpers do
@@ -119,6 +129,7 @@ module Resque
     end
 
     def show(page, layout = true)
+      response["Cache-Control"] = "max-age=0, private, must-revalidate"
       begin
         erb page.to_sym, {:layout => layout}, :resque => Resque
       rescue Errno::ECONNREFUSED
@@ -126,9 +137,25 @@ module Resque
       end
     end
 
+    def show_for_polling(page)
+      content_type "text/html"
+      @polling = true
+      show(page.to_sym, false).gsub(/\s{1,}/, ' ')
+    end
+
     # to make things easier on ourselves
     get "/?" do
       redirect url_path(:overview)
+    end
+
+    %w( overview workers ).each do |page|
+      get "/#{page}.poll" do
+        show_for_polling(page)
+      end
+
+      get "/#{page}/:id.poll" do
+        show_for_polling(page)
+      end
     end
 
     %w( overview queues working workers key ).each do |page|
@@ -146,14 +173,6 @@ module Resque
       redirect u('queues')
     end
 
-    %w( overview workers ).each do |page|
-      get "/#{page}.poll" do
-        content_type "text/html"
-        @polling = true
-        show(page.to_sym, false).gsub(/\s{1,}/, ' ')
-      end
-    end
-
     get "/failed" do
       if Resque::Failure.url
         redirect Resque::Failure.url
@@ -164,6 +183,13 @@ module Resque
 
     post "/failed/clear" do
       Resque::Failure.clear
+      redirect u('failed')
+    end
+
+    post "/failed/requeue/all" do
+      Resque::Failure.count.times do |num|
+        Resque::Failure.requeue(num)
+      end
       redirect u('failed')
     end
 

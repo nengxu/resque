@@ -1,3 +1,76 @@
+## 1.19.0 (2011-09-01)
+
+* Added Airbrake (formerly Hoptoad) support.
+* Web UI: Added retry all button to failed jobs page
+* Web UI: Show focus outline
+
+## 1.18.6 (2011-08-30)
+
+* Bugfix: Use Rails 3 eager loading for resque:preload
+
+## 1.18.5 (2011-08-24)
+
+* Added support for Travis CI
+* Bugfix: preload only happens in production Rails environment
+
+## 1.18.4 (2011-08-23)
+
+* Bugfix: preload task depends on setup
+
+## 1.18.3 (2011-08-23)
+
+* Bugfix: Fix preloading on Rails 3.x.
+
+## 1.18.2 (2011-08-19)
+
+* Fix RAILS_ROOT deprecation warning
+
+## 1.18.1 (2011-08-19)
+
+* Bugfix: Use RAILS_ROOT in preload task
+
+## 1.18.0 (2011-08-18)
+
+* Added before_enqueue hook.
+* Resque workers now preload files under app/ in Rails
+* Switch to MultiJSON
+* Bugfix: Finding worker pids on Solaris
+* Web UI: Fix NaN days ago for worker screens
+* Web UI: Add Cache-Control header to prevent proxy caching
+* Web UI: Update Resque.redis_id so it can be used in a distributed ring.
+
+## 1.17.1 (2011-05-27)
+
+* Reverted `exit` change. Back to `exit!`.
+
+## 1.17.0 (2011-05-26)
+
+* Workers exit with `exit` instead of `exit!`. This means you
+  can now use `at_exit` hooks inside workers.
+* More monit typo fixes.
+* Fixed bug in Hoptoad backend.
+* Web UI: Wrap preformatted arguments.
+
+## 1.16.1 (2011-05-17)
+
+* Bugfix: Resque::Failure::Hoptoad.configure works again
+* Bugfix: Loading rake tasks
+
+## 1.16.0 (2011-05-16)
+
+* Optional Hoptoad backend extracted into hoptoad_notifier. Install the gem to use it.
+* Added `Worker#paused?` method
+* Bugfix: Properly reseed random number generator after forking.
+* Bugfix: Resque.redis=(<a Redis::Namespace>)
+* Bugfix: Monit example stdout/stderr redirection
+* Bugfix: Removing single failure now works with multiple failure backends
+* Web: 'Remove Queue' now requires confirmation
+* Web: Favicon!
+* Web Bugfix: Dates display in Safari
+* Web Bugfix: Dates display timezone
+* Web Bugfix: Race condition querying working workers
+* Web Bugfix: Fix polling /workers/all in resque-web
+
 ## 1.15.0 (2011-03-18)
 
 * Fallback to Redis.connect. Makes ENV variables and whatnot work.
