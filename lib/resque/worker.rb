@@ -134,10 +134,10 @@ module Resque
 
           if @child = fork
             srand # Reseeding
-            procline "Forked #{@child} at #{Time.now.to_i}"
+            procline "[#{job.queue}] Forked #{@child} at #{Time.now}"
             Process.wait(@child)
           else
-            procline "Processing #{job.queue} since #{Time.now.to_i}"
+            procline "Processing #{job.payload.inspect}"
             perform(job, &block)
             exit! unless @cant_fork
           end
@@ -147,7 +147,7 @@ module Resque
         else
           break if interval.zero?
           log! "Sleeping for #{interval} seconds"
-          procline paused? ? "Paused" : "Waiting for #{@queues.join(',')}"
+          procline paused? ? "Paused" : "[#{@queues.join(',')}] Waiting"
           sleep interval
         end
       end
